@@ -9,10 +9,10 @@
             --primary-color: #FF6B6B;
             --secondary-color: #4ECDC4;
             --bg-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-bg: rgba(255, 255, 255, 0.98);
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg-gradient);
             min-height: 100vh;
             display: flex;
@@ -37,21 +37,19 @@
             width: 100%;
             max-width: 480px;
             box-sizing: border-box;
-            transition: all 0.3s ease;
         }
         
         /* 輸入區樣式 */
         .input-section { display: block; }
         .input-group { margin-bottom: 20px; text-align: left; }
-        label { font-weight: 600; display: block; margin-bottom: 8px; color: #444; font-size: 0.95rem;}
+        label { font-weight: 600; display: block; margin-bottom: 8px; color: #444; }
         textarea {
             width: 100%; height: 100px; padding: 12px;
             border: 2px solid #eee; border-radius: 12px;
             font-size: 14px; box-sizing: border-box; resize: vertical;
-            font-family: inherit; transition: border-color 0.3s;
         }
         textarea:focus { border-color: var(--secondary-color); outline: none; }
-        textarea.short-input { height: 60px; }
+        .short-input { height: 60px; }
         .hint { font-size: 12px; color: #888; margin-top: 6px; }
 
         /* 按鈕樣式 */
@@ -69,12 +67,11 @@
             display: none; width: 100%; max-width: 300px;
         }
         button.reset-btn { background: #95a5a6; display: none; box-shadow: none;}
-        button:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none;}
+        button:disabled { background: #ccc; cursor: not-allowed; opacity: 0.7;}
 
         /* 抽獎進行區 */
         .lottery-section { display: none; text-align: center; }
         
-        /* 時間戳記與狀態 */
         .status-bar {
             background: #f8f9fa; padding: 10px; border-radius: 10px;
             margin-bottom: 15px; font-size: 0.9rem; color: #555;
@@ -87,14 +84,17 @@
         /* 轉盤區域 */
         .wheel-wrapper {
             position: relative; width: 320px; height: 320px; margin: 20px auto;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
         }
-        canvas { width: 100%; height: 100%; transform: rotate(-90deg); }
+        canvas { width: 100%; height: 100%; } /* 移除 CSS 旋轉，改用程式控制 */
+        
+        /* 指針：固定在正上方 */
         .pointer {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
             z-index: 10; width: 40px; height: 50px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='%23333333' d='M384 192c0 87.4-117 243-168.3 307.2c-12.3 15.3-35.1 15.3-47.4 0C117 435 0 279.4 0 192C0 86 86 0 192 0s192 86 192 192z'/%3E%3C/svg%3E");
+            /* 使用 SVG 繪製一個明顯的倒三角形 */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3E%3Cpath fill='%23333' d='M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z'/%3E%3C/svg%3E");
             background-repeat: no-repeat; background-position: center bottom; background-size: contain;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
         }
 
         /* 結果列表 */
@@ -103,42 +103,33 @@
             border-radius: 12px; padding: 15px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
             display: none;
         }
-        #result-list h3 { margin: 0 0 10px 0; color: var(--primary-color); text-align: center;}
         .result-item {
             padding: 10px; border-bottom: 1px solid #eee;
             font-size: 1.1rem; display: flex; justify-content: space-between;
         }
-        .result-item:last-child { border-bottom: none; }
         .winner-name { font-weight: bold; color: #333; }
         .prize-name { color: var(--secondary-color); font-weight: 600; }
-        .winner-amount { font-size: 0.8em; color: #888; }
-
-        @media (max-width: 400px) {
-            .wheel-wrapper { width: 280px; height: 280px; }
-        }
     </style>
 </head>
 <body>
 
-<h1>🎁 代購滿額贈抽獎</h1>
+<h1>🎁 代購滿額贈抽獎 (修正版)</h1>
 
 <div class="container">
     
     <div class="input-section" id="inputSection">
         <div class="input-group">
-            <label>👥 步驟 1: 輸入名單與金額 (一行一筆)</label>
+            <label>👥 步驟 1: 輸入名單與金額</label>
             <textarea id="dataInput" placeholder="小明 1500&#10;小華 3000&#10;阿美 500">小明 1500
 小華 3000
 阿美 500
 大壯 4500
 Kelly 2200</textarea>
-            <div class="hint">格式：名字 空格 金額</div>
         </div>
 
         <div class="input-group">
-            <label>🏆 步驟 2: 輸入獎項 (選填，一行一個)</label>
-            <textarea id="prizeInput" class="short-input" placeholder="例如：&#10;A賞：高級吹風機&#10;B賞：保溫杯組"></textarea>
-            <div class="hint">若不輸入，將預設抽出一位「幸運得主」。</div>
+            <label>🏆 步驟 2: 輸入獎項</label>
+            <textarea id="prizeInput" class="short-input" placeholder="A賞：高級吹風機&#10;B賞：保溫杯組"></textarea>
         </div>
 
         <div class="btn-group">
@@ -148,11 +139,10 @@ Kelly 2200</textarea>
 
     <div class="lottery-section" id="lotterySection">
         <div class="status-bar">
-            <div>🕒 時間戳記：<span id="timestamp" class="timestamp">等待開始...</span></div>
-            <div style="margin-top: 5px; font-size: 12px;">(此時間為即時網路時間，確保抽獎公正性)</div>
+            <div>🕒 時間：<span id="timestamp" class="timestamp">--:--:--</span></div>
         </div>
         
-        <div id="currentStatusText" class="current-prize">準備就緒！</div>
+        <div id="currentStatusText" class="current-prize">準備就緒</div>
 
         <div class="wheel-wrapper">
             <div class="pointer"></div>
@@ -160,60 +150,56 @@ Kelly 2200</textarea>
         </div>
 
         <div id="result-list">
-            <h3>🎉 中獎名單 🎉</h3>
+            <h3 style="margin:0 0 10px 0; text-align:center; color:#FF6B6B;">🎉 中獎名單</h3>
             <div id="resultItems"></div>
         </div>
 
         <div class="btn-group">
-            <button class="spin-btn" id="spinBtn" onclick="startAutoDraw()">▶ 開始連續抽獎 (全程錄影中)</button>
-            <button class="reset-btn" id="resetBtn" onclick="reset()">修改資料 / 重置</button>
+            <button class="spin-btn" id="spinBtn" onclick="startAutoDraw()">▶ 開始抽獎 (錄影中)</button>
+            <button class="reset-btn" id="resetBtn" onclick="reset()">重置 / 修改</button>
         </div>
     </div>
 
 </div>
 
 <script>
-    let participants = []; // 當前參與者 (會隨抽獎減少)
-    let allParticipantsForView = []; // 僅供顯示總金額用
-    let prizes = []; // 獎品列表
-    let currentPrizeIndex = 0; // 目前抽到第幾個獎
+    let participants = [];
+    let prizes = [];
+    let currentPrizeIndex = 0;
     let isDrawing = false;
     let timeInterval;
     
-    // 轉盤配色 (更柔和專業)
+    // 轉盤顏色
     let colors = ['#FF8A80', '#82B1FF', '#B39DDB', '#80CBC4', '#F48FB1', '#FFCC80', '#90CAF9', '#A5D6A7', '#E6EE9C'];
 
     let canvas = document.getElementById('wheelCanvas');
     let ctx = canvas.getContext('2d');
-    // 增加解析度以防模糊
     canvas.width = 600; canvas.height = 600;
+    
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     const outsideRadius = canvas.width * 0.42;
     const textRadius = canvas.width * 0.32;
 
-    let currentRotation = 0;
+    let currentRotation = 0; // 累積旋轉角度 (弧度)
     let spinTimeout = null;
     let spinAngleStart = 0;
     let spinTime = 0;
     let spinTimeTotal = 0;
 
-    // --- 核心功能 ---
+    // --- 核心邏輯 ---
 
-    // 1. 準備抽獎資料
     function prepareLottery() {
         const dataInput = document.getElementById('dataInput').value.trim();
         const prizeInput = document.getElementById('prizeInput').value.trim();
+        if (!dataInput) return alert("請輸入名單");
 
-        if (!dataInput) return alert("請輸入參與者名單與金額");
-
-        // 解析名單
         participants = [];
         let totalAmount = 0;
         dataInput.split('\n').forEach(line => {
             let parts = line.trim().split(/\s+/);
             if (parts.length >= 2) {
-                let name = parts.slice(0, parts.length - 1).join(" "); // 處理名字中有空格的情況
+                let name = parts.slice(0, parts.length - 1).join(" ");
                 let amount = parseFloat(parts[parts.length - 1]);
                 if (!isNaN(amount) && amount > 0) {
                     participants.push({ name, amount, originalIndex: participants.length });
@@ -222,91 +208,94 @@ Kelly 2200</textarea>
             }
         });
 
-        if (participants.length < 2) return alert("至少需要兩個人才能抽獎");
-        allParticipantsForView = [...participants]; // 備份一份
+        if (participants.length < 2) return alert("至少需要兩人");
 
-        // 解析獎品
         prizes = prizeInput ? prizeInput.split('\n').filter(p => p.trim() !== '') : ["幸運得主"];
-        
-        if (prizes.length > participants.length) {
-             return alert(`錯誤：獎品數量 (${prizes.length}) 多於參與人數 (${participants.length})`);
-        }
+        if (prizes.length > participants.length) return alert("獎品數量不能多於人數");
 
         currentPrizeIndex = 0;
-        calculateWeights();
-        drawWheel();
+        calculateWeights(); // 計算角度
+        drawWheel(); // 繪製初始狀態
         
-        // 切換介面
+        // 切換畫面
         document.getElementById('inputSection').style.display = 'none';
         document.getElementById('lotterySection').style.display = 'block';
         document.getElementById('spinBtn').style.display = 'inline-block';
         document.getElementById('resetBtn').style.display = 'inline-block';
         document.getElementById('result-list').style.display = 'none';
         document.getElementById('resultItems').innerHTML = '';
-        document.getElementById('currentStatusText').innerText = `總金額: $${totalAmount}，共 ${prizes.length} 個獎項。準備開始！`;
+        document.getElementById('currentStatusText').innerText = `總金額: $${totalAmount}，共 ${prizes.length} 個獎項`;
 
-        // 開始更新時間
         updateTimestamp();
+        if(timeInterval) clearInterval(timeInterval);
         timeInterval = setInterval(updateTimestamp, 1000);
     }
 
-    // 計算權重 (每次有人中獎後都要重新計算)
     function calculateWeights() {
         let currentTotal = participants.reduce((sum, p) => sum + p.amount, 0);
+        let startAngle = 0;
         participants.forEach(p => {
             p.angle = (p.amount / currentTotal) * (Math.PI * 2);
+            p.startAngle = startAngle;
+            p.endAngle = startAngle + p.angle;
+            startAngle += p.angle;
         });
     }
 
-    // 繪製轉盤
     function drawWheel() {
-        let currentAngle = currentRotation;
+        // 在 Canvas 繪圖時，我們要加上 currentRotation
+        // 為了讓指針指在正上方 (270度 / 1.5 PI)，我們需要做一些旋轉處理
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 繪製外框裝飾
+        // 畫外框
         ctx.beginPath();
         ctx.arc(centerX, centerY, outsideRadius + 10, 0, Math.PI * 2);
         ctx.fillStyle = "#fff";
         ctx.fill();
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = "#eee";
         ctx.stroke();
 
-        participants.forEach((p, i) => {
-            // 扇形
-            ctx.fillStyle = colors[p.originalIndex % colors.length];
+        ctx.save();
+        // 將畫布中心移到中間
+        ctx.translate(centerX, centerY);
+        // 旋轉畫布 (這是關鍵：轉盤在轉)
+        ctx.rotate(currentRotation);
+
+        participants.forEach((p) => {
             ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, outsideRadius, currentAngle, currentAngle + p.angle);
-            ctx.lineTo(centerX, centerY);
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, outsideRadius, p.startAngle, p.endAngle);
+            ctx.lineTo(0, 0);
+            ctx.fillStyle = colors[p.originalIndex % colors.length];
             ctx.fill();
-            // 扇形邊線
+            ctx.strokeStyle = "white";
             ctx.lineWidth = 2;
-            ctx.strokeStyle = "rgba(255,255,255,0.5)";
             ctx.stroke();
 
             // 文字
             ctx.save();
-            ctx.translate(centerX, centerY);
-            ctx.rotate(currentAngle + p.angle / 2 + Math.PI / 2);
-            ctx.translate(0, -textRadius);
+            let textAngle = p.startAngle + p.angle / 2;
+            ctx.rotate(textAngle);
+            ctx.translate(textRadius, 0);
+            // 文字不需要再轉 90 度，因為現在 0 度就是向右
+            // 但為了閱讀方便，我們通常希望文字朝向圓心或背向圓心
+            // 這裡設定文字水平
             
-            ctx.fillStyle = "#444"; // 文字顏色改深色更容易閱讀
-            ctx.font = 'bold 28px sans-serif';
+            ctx.fillStyle = "#333";
+            ctx.font = 'bold 26px Arial';
             ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
             ctx.fillText(p.name, 0, 0);
-            ctx.font = '18px sans-serif';
-            ctx.fillStyle = "#666";
-            ctx.fillText(`$${p.amount}`, 0, 26);
+            ctx.font = '16px Arial';
+            ctx.fillText(`$${p.amount}`, 0, 24);
             ctx.restore();
-            
-            currentAngle += p.angle;
         });
+
+        ctx.restore();
     }
 
-    // --- 抽獎流程控制 ---
+    // --- 抽獎邏輯 ---
 
-    // 開始自動連續抽獎
     function startAutoDraw() {
         if (isDrawing) return;
         isDrawing = true;
@@ -316,27 +305,20 @@ Kelly 2200</textarea>
         drawNextPrize();
     }
 
-    // 抽下一個獎品
     function drawNextPrize() {
         if (currentPrizeIndex >= prizes.length || participants.length === 0) {
-            // 全部抽完
             finishDraw();
             return;
         }
-
         let prizeName = prizes[currentPrizeIndex];
-        document.getElementById('currentStatusText').innerHTML = `🔥 正在抽出：<span style="color:var(--primary-color);font-size:1.4em;">[ ${prizeName} ]</span>`;
-        
-        // 開始旋轉動畫
+        document.getElementById('currentStatusText').innerHTML = `🔥 正在抽出：<span style="color:#FF6B6B;font-size:1.3em;">[ ${prizeName} ]</span>`;
         spin();
     }
 
-    // 執行旋轉 (單次)
     function spin() {
-        // 隨機參數確保每次轉動不同
-        spinAngleStart = Math.random() * 10 + 25; // 初始速度
+        spinAngleStart = Math.random() * 10 + 20; 
         spinTime = 0;
-        spinTimeTotal = Math.random() * 2000 + 4000; // 轉動時間 4~6秒
+        spinTimeTotal = Math.random() * 2000 + 4000;
         rotateWheel();
     }
 
@@ -346,58 +328,62 @@ Kelly 2200</textarea>
             stopRotateWheel();
             return;
         }
-        // 緩動效果 (Ease Out Cubic)
         let t = spinTime;
         let b = spinAngleStart;
         let c = -spinAngleStart;
         let d = spinTimeTotal;
-        let currentSpeed = c * ((t = t / d - 1) * t * t + 1) + b;
+        let currentSpeed = c * ((t = t / d - 1) * t * t + 1) + b; // Ease out
 
         currentRotation += (currentSpeed * Math.PI / 180);
         drawWheel();
         spinTimeout = setTimeout(rotateWheel, 30);
     }
 
-    // 停止旋轉並判定結果
     function stopRotateWheel() {
         clearTimeout(spinTimeout);
-        
-        // 計算中獎者
-        const degrees = currentRotation * 180 / Math.PI + 90;
-        let normalizedRotation = currentRotation % (Math.PI * 2);
-        let pointerAngle = (Math.PI * 1.5 - normalizedRotation);
-        while(pointerAngle < 0) pointerAngle += Math.PI * 2;
-        while(pointerAngle > Math.PI * 2) pointerAngle -= Math.PI * 2;
 
+        // 數學驗證核心：
+        // 1. 指針位置固定在正上方 (Canvas 的 270度, 或 1.5 * PI)
+        // 2. 轉盤轉了 currentRotation
+        // 3. 我們要找出：哪一個扇形的區域，在旋轉後，覆蓋了 270度？
+
+        // 將 currentRotation 正規化到 0 ~ 2PI
+        let actualRotation = currentRotation % (Math.PI * 2);
+        
+        // 計算「指針相對於轉盤 0 點的角度」
+        // 想像轉盤沒動，是指針往反方向轉了 actualRotation
+        // 指針原始位置 = 1.5 * PI (270度)
+        let relativePointerAngle = (1.5 * Math.PI - actualRotation);
+        
+        // 處理負數與超過一圈的情況，確保在 0 ~ 2PI 之間
+        while (relativePointerAngle < 0) relativePointerAngle += Math.PI * 2;
+        while (relativePointerAngle >= Math.PI * 2) relativePointerAngle -= Math.PI * 2;
+
+        // 比對區間
         let winner = null;
-        let angleSoFar = 0;
-        for(let p of participants) {
-            if (pointerAngle >= angleSoFar && pointerAngle < angleSoFar + p.angle) {
+        for (let p of participants) {
+            if (relativePointerAngle >= p.startAngle && relativePointerAngle < p.endAngle) {
                 winner = p;
                 break;
             }
-            angleSoFar += p.angle;
         }
+        
+        // 雙重保險：萬一浮點數誤差沒抓到，抓最後一個
+        if (!winner && participants.length > 0) winner = participants[participants.length-1];
 
         if(winner) {
             let prizeName = prizes[currentPrizeIndex];
-            document.getElementById('currentStatusText').innerHTML = `🎉 恭喜 <span style="color:var(--primary-color);">${winner.name}</span> 獲得 [ ${prizeName} ]！`;
+            document.getElementById('currentStatusText').innerHTML = `🎉 恭喜 <span style="color:#FF6B6B;">${winner.name}</span> 獲得 [ ${prizeName} ]！`;
             
-            // 添加到結果列表
             addResultToList(prizeName, winner);
-
-            // 移除中獎者
-            participants = participants.filter(p => p !== winner);
-
-            // 準備下一次抽獎
+            participants = participants.filter(p => p !== winner); // 移除中獎者
             currentPrizeIndex++;
-            
-            // 停頓 3 秒讓大家看清楚結果，再進行下一輪
+
             setTimeout(() => {
                 if (currentPrizeIndex < prizes.length && participants.length > 0) {
-                    calculateWeights(); // 重新計算權重
-                    drawWheel(); // 重繪轉盤
-                    setTimeout(drawNextPrize, 1000); // 再等一秒後開始轉
+                    calculateWeights();
+                    drawWheel(); // 獎項變了，轉盤重繪
+                    setTimeout(drawNextPrize, 1000);
                 } else {
                     finishDraw();
                 }
@@ -405,16 +391,14 @@ Kelly 2200</textarea>
         }
     }
 
-    // 抽獎全部結束
     function finishDraw() {
         isDrawing = false;
-        document.getElementById('currentStatusText').innerText = "🎊 抽獎活動圓滿結束！感謝大家參與 🎊";
-        document.getElementById('spinBtn').style.display = 'none'; // 隱藏開始按鈕
+        document.getElementById('currentStatusText').innerText = "🎊 抽獎結束！";
+        document.getElementById('spinBtn').style.display = 'none';
         document.getElementById('resetBtn').disabled = false;
         clearInterval(timeInterval);
     }
 
-    // 輔助功能：新增結果到列表
     function addResultToList(prize, winner) {
         const resultDiv = document.getElementById('resultItems');
         const item = document.createElement('div');
@@ -423,31 +407,24 @@ Kelly 2200</textarea>
             <div><span class="prize-name">${prize}</span></div>
             <div style="text-align:right;">
                 <span class="winner-name">${winner.name}</span><br>
-                <span class="winner-amount">(出資 $${winner.amount})</span>
+                <span style="font-size:0.8em; color:#999;">$${winner.amount}</span>
             </div>
         `;
-        resultDiv.prepend(item); // 新的結果在最上面
+        resultDiv.prepend(item);
     }
 
-    // 輔助功能：更新時間戳記
     function updateTimestamp() {
         const now = new Date();
-        const dateStr = now.toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' });
-        const timeStr = now.toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' });
-        document.getElementById('timestamp').innerText = `${dateStr} ${timeStr}`;
+        document.getElementById('timestamp').innerText = now.toLocaleString('zh-TW', { hour12: false });
     }
 
-    // 重置
     function reset() {
         if (isDrawing) return;
-        clearInterval(timeInterval);
         document.getElementById('inputSection').style.display = 'block';
         document.getElementById('lotterySection').style.display = 'none';
         document.getElementById('spinBtn').disabled = false;
-        document.getElementById('resetBtn').disabled = false;
         currentRotation = 0;
     }
 </script>
-
 </body>
 </html>
